@@ -14,7 +14,7 @@ const userRegistration = async (req, res) => {
         const errors = validationResult(req)
         const errorMessages = errors.errors.map(error => error.msg);
 
-        if(errors.length>0) {
+        if(errorMessages.length>0) {
             return res.status(400).json({success: false, message: errorMessages});
         }
         if (!req.body || Object.keys(req.body).length === 0) {
@@ -177,4 +177,24 @@ const resetPassword = async (req, res) => {
     }
 }
 
-module.exports = {userRegistration, userLogin, forgotPassword, resetPassword }
+const logOut = async (req, res) => {
+    try{
+        id = req.user.id
+        const getUser = await User.findOne({
+            where: {id}
+        });
+        if(!getUser.token){
+            return res.status(400).json({ success: false, message: 'User not logged in' });
+        }
+        User.update({token:null}, {where: {id}})
+        return res.status(200).json({ success: true, message: "User logout successsfully" });
+    }
+    catch(error){
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+}
+
+
+module.exports = {userRegistration, userLogin, forgotPassword,
+    resetPassword, logOut }

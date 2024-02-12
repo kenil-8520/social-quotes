@@ -27,11 +27,26 @@ const User = sequelize.define("User", {
         type: DataTypes.BOOLEAN,
         defaultValue:false
     },
-    deletedAt:{
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        field: 'created_at'
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        field: 'updated_at'
+    },
+    deleted_at:{
         type: DataTypes.DATE,
         allowNull: true
     }
-})
+
+},
+{
+    freezeTableName: true
+}
+)
 
 module.exports = User
 

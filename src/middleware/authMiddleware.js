@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-function verifyToken(req, res, next) {
+
+const verifyToken = async(req, res, next) =>{
     try{
         let token;
         let authHeader = req.headers.Authorization || req.headers.authorization;
@@ -9,6 +11,10 @@ function verifyToken(req, res, next) {
         }
         if (authHeader && authHeader.startsWith("Bearer")) {
         token = authHeader.split(" ")[1];
+        const user = await User.findAll({where: {token}})
+        if(user.length == 0) {
+            return res.status(401).json({success : false, message: 'Unauthorized user login in to continue'})
+        }
         jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
                 return res.status(401).json({success : false, message: 'Unauthorized user'})
