@@ -72,16 +72,6 @@ const deleteQuotes = async (req, res) => {
         const quote_id = req.query.quote_id
         const user = req.user.id
         const data = await Quote.findOne({where:{id: quote_id, userId:{[Op.eq]:user}}})
-        // const data = await Quote.findOne({
-        //     where: { id: quote_id },
-        //     include: [{
-        //       model: User,
-        //       as: "user_temp",
-        //       required: true,
-        //     //   where: { id: user.id }
-        //     }]
-        //   });
-        //   console.log(data.user_temp.dataValues.is_admin);
         if(!data){
             return res.status(400).json({ success: true, message:"invalid quote id"})
         }
@@ -98,6 +88,7 @@ const deleteQuotes = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 }
+
 
 
 
