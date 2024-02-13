@@ -1,7 +1,7 @@
 const express = require('express');
-const {userRegistration, userLogin, forgotPassword, resetPassword, logOut} = require('../controllers/userController.js')
+const {userRegistration, userLogin, forgotPassword, resetPassword, changePassword, logOut} = require('../controllers/userController.js')
 const verifyToken = require('../middleware/authMiddleware.js');
-const {createUser} = require('../middleware/validator.js')
+const {createUser, passwordValidation} = require('../middleware/validator.js')
 
 
 const router = express.Router();
@@ -13,6 +13,8 @@ router.post('/login', userLogin);
 router.post('/forgot-password', forgotPassword);
 
 router.post('/reset-password', resetPassword);
+
+router.post('/change-password', verifyToken, passwordValidation, changePassword);
 
 router.post('/logout', verifyToken, logOut);
 

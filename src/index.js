@@ -1,8 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
-const userRouter = require('./routers/userRouter.js')
-const quoteRoter = require('./routers/quoteRouter.js')
+const router = require('./routers/indexRouter.js')
 
 dotenv.config();
 
@@ -22,7 +21,7 @@ app.get('/', (req, res) =>{
     res.json({message : "API working"})
 })
 
-app.use('/v1', userRouter, quoteRoter)
+app.use('/v1', router)
 
 const PORT = process.env.PORT
 

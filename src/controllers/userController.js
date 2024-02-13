@@ -39,15 +39,20 @@ const userRegistration = async (req, res) => {
             return res.status(400).json({ success: false, message: "Email is already associated with an account"});
         }
 
-        const user = await User.create({
+        const data = await User.create({
             first_name,
             last_name,
             email,
             password: await bcrypt.hash(password, 15),
             is_admin
-
-        });
-        return res.status(201).json({ success: true, message: "User registered successfully", data: user});
+        },
+        );
+        const customData = {
+            firstname : data.first_name,
+            email: data.email,
+            is_admin: data.is_admin,
+        }
+        return res.status(201).json({ success: true, message: "User registered successfully", data: customData});
 
     } catch (err) {
         console.log(err);
@@ -110,7 +115,7 @@ const sendResetPasswordEmail = async(email, resetToken) => {
         from: 'test.infynno@gmail.com',
         to: email,
         subject: 'Reset Your Password',
-        html: `<p>Please click the following link to reset your password: <a href="http://localhost:3000/reset-password?token=${resetToken}">${resetToken}</a></p>`
+        html: `<p>Please click the following link to reset your password: <a href="http://localhost:8080/reset-password?token=${resetToken}">${resetToken}</a></p>`
     };
     console.log(mailOptions);
 
@@ -177,6 +182,43 @@ const resetPassword = async (req, res) => {
     }
 }
 
+
+const changePassword = async (req, res) => {
+    try {
+        const errors = validationResult(req)
+        const errorMessages = errors.errors.map(error => error.msg);
+
+        if(errorMessages.length>0) {
+            return res.status(400).json({success: false, message: errorMessages});
+        }
+        const { oldPassword, newPassword, confirmPassword } = req.body;
+        if(!oldPassword || !newPassword || !confirmPassword){
+            return res.status(400).json({success:false, message:"Please provide old password, new password and confirm password"})
+        }
+        else if (newPassword !== confirmPassword){
+            return res.status(400).json({success:false, message:"New password and confirm password does not match"})
+        }
+        const userId = req.user.id;
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        const passwordValid = await bcrypt.compare(oldPassword, user.password);
+        if (!passwordValid) {
+            return res.status(401).json({ success: false, message: "Incorrect old password" });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedNewPassword;
+        await user.save();
+        return res.status(200).json({ success: true, message: "Password changed successfully" });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: "Error in changing password" });
+    }
+};
+
+
 const logOut = async (req, res) => {
     try{
         id = req.user.id
@@ -197,4 +239,4 @@ const logOut = async (req, res) => {
 
 
 module.exports = {userRegistration, userLogin, forgotPassword,
-    resetPassword, logOut }
+    resetPassword, changePassword, logOut }

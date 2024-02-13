@@ -6,3 +6,7 @@ exports.createUser = [
   body('email').isEmail().withMessage('Invalid email format'),
   body('password').isLength({min: 6}).withMessage('The minimum password length is 6 characters'),
 ]
+
+exports.passwordValidation = [
+  body('newPassword').isLength({min: 6}).withMessage('The minimum password length is 6 characters'),
+]

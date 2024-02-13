@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const {Op} = require('sequelize')
 const Quote = require("../models/Quote");
+const Like = require("../models/Like");
 
 const createQuote = async (req, res) => {
   try {
@@ -60,7 +61,7 @@ const listQuotes = async (req, res) => {
             return res.status(404).json({ success: false, message: "No data found for this user" });
         }
 
-        return res.status(200).json({ success: true, data, totalCount, message: "Data retrieved successfully" });
+        return res.status(200).json({ success: true, data, page, limit, totalCount, message: "Data retrieved successfully" });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -89,7 +90,135 @@ const deleteQuotes = async (req, res) => {
     }
 }
 
+const commentQuotes = async (req, res) => {
+  try{
+    const quote_id = req.query.quote_id
+    const comment = req.body
+    if(!comment || !quote_id || comment === ''){
+      return res.status(400).json({ success: true, message:"please provide and quote_id to add comment"})
+    }
+    const data = await Quote.findOne({where:{id: quote_id}})
+    if(!data){
+      return res.status(400).json({ success: true, message:"invalid quote id"})
+    }
+    data.comment = comment.comment
+    data.save()
+    const dataUpdate = await Quote.findOne({where:{id: quote_id}})
+    return res.status(200).json({ success: true,data:dataUpdate, message:"comment successfully posted"})
+  }
+  catch(error){
+    console.log(error);
+    return res.status(500).json({success:false,message:'Internal Server Error'});
+  }
+}
 
+const likeQuotes = async (req, res) => {
+  try{
+    const user = req.user;
+    const quote_id = req.query.quote_id;
+    const {like} = req.body
 
+    const existingLike = await Like.findOne({
+      where: {
+        user_id: user.id,
+        quote_id: quote_id
+      }
+    });
+    if (existingLike) {
+      const newLikeStatus = !existingLike.like;
+      await existingLike.update({ like: newLikeStatus });
 
-module.exports = {createQuote, listQuotes, deleteQuotes};
+      const likeMessage = newLikeStatus ? "liked" : "unliked";
+      const likeCount = await Like.count({
+        where: {
+          quote_id: quote_id,
+          like: true
+        }
+      });
+
+      await Quote.update(
+        { like_count: likeCount },
+        { where: { id: quote_id } }
+      );
+
+      return res.status(200).json({ success: true, message: `You have ${likeMessage} the post successfully` });
+    }
+    await Like.create({
+      user_id: user.id,
+      quote_id: quote_id,
+      like: like
+    });
+    const likeCount = await Like.count({
+      where: {
+        quote_id: quote_id,
+        like: true
+      }
+    });
+    await Quote.update(
+      { like_count: likeCount },
+      { where: { id: quote_id } }
+    );
+    return res.status(200).json({ success: true, message:"liked the post successfully"})
+  }
+  catch(error){
+    console.log(error);
+    return res.status(500).json({ success: false, message:"Internal Server Error" });
+  }
+}
+
+const dislikeQuotes = async (req, res) => {
+  try{
+    const user = req.user;
+    const quote_id = req.query.quote_id;
+    const {dislike} = req.body
+
+    const existingDislike = await Like.findOne({
+      where: {
+        user_id: user.id,
+        quote_id: quote_id
+      }
+    });
+    if (existingDislike) {
+      const newDislikeStatus = !existingDislike.dislike;
+      await existingDislike.update({ dislike: newDislikeStatus });
+
+      const dislikeMessage = newDislikeStatus ? "disliked" : "removeddislike";
+      const dislikeCount = await Like.count({
+        where: {
+          quote_id: quote_id,
+          dislike: true
+        }
+      });
+
+      await Quote.update(
+        { dislike_count: dislikeCount },
+        { where: { id: quote_id } }
+      );
+
+      return res.status(200).json({ success: true, message: `You have ${dislikeMessage} the post successfully` });
+      return res.status(400).json({ success: true, message: "You have already disliked this post" });
+    }
+    await Like.create({
+      user_id: user.id,
+      quote_id: quote_id,
+      dislike: dislike
+    });
+    const dislikeCount = await Like.count({
+      where: {
+        quote_id: quote_id,
+        dislike: true
+      }
+    });
+    await Quote.update(
+      { dislike_count: dislikeCount },
+      { where: { id: quote_id } }
+    );
+    return res.status(200).json({ success: true, message:"disliked the post successfully"})
+  }
+  catch(error){
+    console.log(error);
+    return res.status(500).json({ success: false, message:"Internal Server Error" });
+  }
+}
+
+module.exports = {createQuote, listQuotes, deleteQuotes, commentQuotes, likeQuotes, dislikeQuotes};

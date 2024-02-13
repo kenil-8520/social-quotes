@@ -50,7 +50,7 @@ const quote = sequelize.define("quote", {
 quote.belongsTo(User, {
     foreignKey: 'userId',
     onDelete: 'CASCADE',
-    as:'user_temp'
+    as:'user'
 });
 
 module.exports = quote
