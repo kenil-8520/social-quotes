@@ -13,23 +13,12 @@ const userRegistration = async (req, res) => {
     try {
         const errors = validationResult(req)
         const errorMessages = errors.errors.map(error => error.msg);
-
         if(errorMessages.length>0) {
-            return res.status(400).json({success: false, message: errorMessages});
+            return res.status(400).json({success: false, message: errorMessages[0]});
         }
-        if (!req.body || Object.keys(req.body).length === 0) {
-            return res.status(400).json({success: false, message: "Request body is empty provide first_name, email and password"});
-          }
         const { first_name, last_name, email, password, is_admin } = req.body;
         if(typeof is_admin !== "boolean" ? is_admin : false) {
             return res.status(400).json({success: false, message: "is_admin field only accepts boolean values"});
-        }
-        const requiredFields = ["first_name", "email", "password"];
-
-        for (const field of requiredFields) {
-          if (!req.body[field]) {
-            return res.status(400).json({ success: false, message: `${field} is required` });
-          }
         }
 
         const userExists = await User.findOne({
@@ -62,10 +51,17 @@ const userRegistration = async (req, res) => {
 
 const userLogin = async (req, res) => {
     try {
+        const errors = validationResult(req)
+        const errorMessages = errors.errors.map(error => error.msg);
+        if(errorMessages.length>0) {
+            return res.status(400).json({success: false, message: errorMessages[0]});
+        }
+
         const { email, password } = req.body;
         if(!email || !password) {
             return res.status(400).json({success:false, message:"Please provide email and password to login"})
         }
+
 
         const user = await User.findOne({
             where: {email}
@@ -129,6 +125,11 @@ const sendResetPasswordEmail = async(email, resetToken) => {
 
 const forgotPassword = async (req, res) => {
     try {
+        const errors = validationResult(req)
+        const errorMessages = errors.errors.map(error => error.msg);
+        if(errorMessages.length>0) {
+            return res.status(400).json({success: false, message: errorMessages[0]});
+        }
         const { email } = req.body;
         if(!email){
             return res.status(400).json({ success: false, message: 'Please enter email to reset the password' });
@@ -151,6 +152,11 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
     try {
+        // const errors = validationResult(req)
+        // const errorMessages = errors.errors.map(error => error.msg);
+        // if(errorMessages.length>0) {
+        //     return res.status(400).json({success: false, message: errorMessages[0]});
+        // }
         const { token, newpassword, confirmpassword } = req.body;
         if(!token || !newpassword || !confirmpassword) {
             return res.status(400).json({success:false, message:"Please provide token, new password and confirm password fields"})

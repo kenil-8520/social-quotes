@@ -60,7 +60,6 @@ const listQuotes = async (req, res) => {
         if (data.length === 0) {
             return res.status(404).json({ success: false, message: "No data found for this user" });
         }
-
         return res.status(200).json({ success: true, data, page, limit, totalCount, message: "Data retrieved successfully" });
     } catch (error) {
         console.log(error);
@@ -103,8 +102,8 @@ const commentQuotes = async (req, res) => {
     }
     data.comment = comment.comment
     data.save()
-    const dataUpdate = await Quote.findOne({where:{id: quote_id}})
-    return res.status(200).json({ success: true,data:dataUpdate, message:"comment successfully posted"})
+    // const dataUpdate = await Quote.findOne({where:{id: quote_id}})
+    return res.status(200).json({ success: true,data:data, message:"comment successfully posted"})
   }
   catch(error){
     console.log(error);
@@ -129,6 +128,13 @@ const likeQuotes = async (req, res) => {
       await existingLike.update({ like: newLikeStatus });
 
       const likeMessage = newLikeStatus ? "liked" : "unliked";
+      // const likedBy = await Like.findAll({
+      //   where:{
+      //     quote_id: quote_id,
+      //     include: [{ model: User, attributes: ['id', 'first_name', 'email', 'is_admin'],
+      //     as: "user"
+      //   }]
+      // })
       const likeCount = await Like.count({
         where: {
           quote_id: quote_id,
@@ -196,7 +202,6 @@ const dislikeQuotes = async (req, res) => {
       );
 
       return res.status(200).json({ success: true, message: `You have ${dislikeMessage} the post successfully` });
-      return res.status(400).json({ success: true, message: "You have already disliked this post" });
     }
     await Like.create({
       user_id: user.id,
