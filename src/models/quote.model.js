@@ -1,6 +1,6 @@
 const {DataTypes} = require("sequelize")
 const sequelize = require("../utils/connectToDB")
-const User = require("./User")
+const User = require("./user.model")
 
 const quote = sequelize.define("quote", {
     quote: {

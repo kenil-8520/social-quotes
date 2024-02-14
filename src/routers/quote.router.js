@@ -1,7 +1,7 @@
 const express = require('express');
-const {createQuote, listQuotes, commentQuotes, deleteQuotes, likeQuotes, dislikeQuotes} = require('../controllers/quoteController.js');
-const {getQuotes} = require('../controllers/adminController.js')
-const verifyToken = require('../middleware/authMiddleware');
+const {createQuote, listQuotes, commentQuotes, deleteQuotes, likeQuotes, dislikeQuotes} = require('../controllers/quote.controller.js');
+const {getQuotes} = require('../controllers/admin.controller.js')
+const verifyToken = require('../middleware/auth.middleware.js');
 
 const router = express.Router();
 

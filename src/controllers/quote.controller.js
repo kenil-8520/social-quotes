@@ -1,7 +1,7 @@
-const User = require("../models/User");
+const User = require("../models/user.model");
 const {Op} = require('sequelize')
-const Quote = require("../models/Quote");
-const Like = require("../models/Like");
+const Quote = require("../models/quote.model");
+const Like = require("../models/like.model");
 
 const createQuote = async (req, res) => {
   try {

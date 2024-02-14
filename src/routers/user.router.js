@@ -1,7 +1,7 @@
 const express = require('express');
-const {userRegistration, userLogin, forgotPassword, resetPassword, changePassword, logOut} = require('../controllers/userController.js')
-const verifyToken = require('../middleware/authMiddleware.js');
-const {createUser, passwordValidation} = require('../middleware/validator.js')
+const {userRegistration, userLogin, forgotPassword, resetPassword, changePassword, logOut} = require('../controllers/user.controller.js')
+const verifyToken = require('../middleware/auth.middleware.js');
+const {createUser, passwordValidation} = require('../middleware/validator.middleware.js')
 
 
 const router = express.Router();

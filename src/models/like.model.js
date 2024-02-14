@@ -1,7 +1,7 @@
 const {DataTypes} = require("sequelize")
 const sequelize = require("../utils/connectToDB")
-const User = require("./User")
-const Quote = require("./Quote")
+const User = require("./user.model")
+const Quote = require("./quote.model")
 
 const Like = sequelize.define("Like", {
     user_id: {
