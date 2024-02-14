@@ -128,13 +128,7 @@ const likeQuotes = async (req, res) => {
       await existingLike.update({ like: newLikeStatus });
 
       const likeMessage = newLikeStatus ? "liked" : "unliked";
-      // const likedBy = await Like.findAll({
-      //   where:{
-      //     quote_id: quote_id,
-      //     include: [{ model: User, attributes: ['id', 'first_name', 'email', 'is_admin'],
-      //     as: "user"
-      //   }]
-      // })
+
       const likeCount = await Like.count({
         where: {
           quote_id: quote_id,

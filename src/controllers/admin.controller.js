@@ -2,6 +2,7 @@ const User = require("../models/user.model");
 const {Op} = require('sequelize')
 const Quote = require("../models/quote.model");
 const Like = require("../models/like.model");
+const quote = require("../models/quote.model");
 
 const getUsers = async (req, res) => {
     try{
@@ -60,19 +61,32 @@ const getQuotes = async (req, res) => {
         }
 
         const totalCount = await Quote.count({ where: whereClause });
-        const data = await Quote.findAll({
+        let quotes = await Quote.findAll({
             where: whereClause,
             offset,
             limit,
             include: [{ model: User, attributes: ['id', 'first_name', 'email', 'is_admin'],
-            as:"user"
-        }]
-        });
-        if (data.length === 0) {
-            return res.status(404).json({ success: false, message: "No data found" });
+            as:"user",
+        }]});
+        for (let i = 0; i < quotes.length; i++) {
+            let liked_user = [];
+            const likeData = await Like.findAll({
+                where: { quote_id: quotes[i].id },
+                include: [{ model: User, attributes: ['first_name'],
+                as:'user_like' }]
+            });
+
+
+            likeData.map(item => {
+                if(item.user_like){
+                    liked_user.push(item.user_like.first_name)
+                }
+            })
+            quotes[i].setDataValue('liked_by', liked_user);
+
         }
 
-        return res.status(200).json({ success: true, data, page, limit, totalCount, message: "Data retrieved successfully" });
+        return res.status(200).json({ success: true, data: quotes, page, limit, totalCount, message: "Data retrieved successfully" });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -102,20 +116,12 @@ const deleteQuotes = async (req, res) => {
 const updateQuotes = async (req, res) => {
     try{
         const quote_id = req.query.quote_id;
-        const { quote, comment} = req.body
-        if(!quote || !comment){
-            return res.status(400).json({ success: true, message:"provide quote or comment to update"})
-        }
+        const { quote } = req.body
         const data = await Quote.findOne({where:{id: quote_id}})
         if(!data){
             return res.status(400).json({ success: true, message:"invalid quote id"})
         }
-        if(quote){
-            data.quote = quote
-        }
-        if(comment){
-            data.comment = comment
-        }
+        data.quote = quote
         data.save()
         return res.status(200).json({ success: true, data:data, message:"Quote updated successfully"})
     }

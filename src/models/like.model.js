@@ -27,12 +27,19 @@ const Like = sequelize.define("Like", {
     dislike:{
         type: DataTypes.BOOLEAN,
         defaultValue: false
-    }
+    },
 },
 {
     freezeTableName: true
 }
 
 );
+
+
+Like.belongsTo(User, {
+    foreignKey: 'user_id',
+    onDelete: 'CASCADE',
+    as:'user_like'
+});
 
 module.exports = Like
