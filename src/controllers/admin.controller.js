@@ -75,8 +75,6 @@ const getQuotes = async (req, res) => {
                 include: [{ model: User, attributes: ['first_name'],
                 as:'user_like' }]
             });
-
-
             likeData.map(item => {
                 if(item.user_like){
                     liked_user.push(item.user_like.first_name)
