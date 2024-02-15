@@ -13,7 +13,7 @@ router.get('/get-quote', verifyToken, getQuotes);
 
 router.delete('/delete-quote', verifyToken, deleteQuotes);
 
-router.put('/comment-quote', verifyToken, commentQuotes);
+router.post('/comment-quote', verifyToken, commentQuotes);
 
 router.put('/like', verifyToken, likeQuotes);
 

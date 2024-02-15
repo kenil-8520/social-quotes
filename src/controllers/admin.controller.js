@@ -70,6 +70,7 @@ const getQuotes = async (req, res) => {
         }]});
         for (let i = 0; i < quotes.length; i++) {
             let liked_user = [];
+            let disliked_user = [];
             const likeData = await Like.findAll({
                 where: { quote_id: quotes[i].id },
                 include: [{ model: User, attributes: ['first_name'],
@@ -79,9 +80,12 @@ const getQuotes = async (req, res) => {
                 if(item.user_like){
                     liked_user.push(item.user_like.first_name)
                 }
+                if(item.user_dislike){
+                    disliked_user.push(item.user_dislike.first_name)
+                }
             })
             quotes[i].setDataValue('liked_by', liked_user);
-
+            quotes[i].setDataValue('disliked_by', disliked_user);
         }
 
         return res.status(200).json({ success: true, data: quotes, page, limit, totalCount, message: "Data retrieved successfully" });

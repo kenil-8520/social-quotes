@@ -28,6 +28,10 @@ const Like = sequelize.define("Like", {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    comment:{
+        type: DataTypes.TEXT,
+        allowNull:true
+    }
 },
 {
     freezeTableName: true

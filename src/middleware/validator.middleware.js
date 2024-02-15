@@ -16,6 +16,7 @@ exports.emailValidate = [
 ]
 
 exports.passwordValidation = [
+  body('password').not().isEmpty().withMessage('password is required'),
   body('password').isLength({min: 6}).withMessage('The minimum password length is 6 characters'),
 ]
 

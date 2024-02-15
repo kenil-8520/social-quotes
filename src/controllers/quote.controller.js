@@ -92,18 +92,13 @@ const deleteQuotes = async (req, res) => {
 const commentQuotes = async (req, res) => {
   try{
     const quote_id = req.query.quote_id
-    const comment = req.body
-    if(!comment || !quote_id || comment === ''){
-      return res.status(400).json({ success: true, message:"please provide and quote_id to add comment"})
-    }
-    const data = await Quote.findOne({where:{id: quote_id}})
-    if(!data){
-      return res.status(400).json({ success: true, message:"invalid quote id"})
-    }
-    data.comment = comment.comment
-    data.save()
-    // const dataUpdate = await Quote.findOne({where:{id: quote_id}})
-    return res.status(200).json({ success: true,data:data, message:"comment successfully posted"})
+    const comment = req.body.comment
+    const data = await Like.create({
+      user_id: req.user.id,
+      quote_id: quote_id,
+      comment: comment
+    });
+    return res.status(200).json({ success: true, data: data, message: "Comment successfully posted" });
   }
   catch(error){
     console.log(error);
@@ -124,11 +119,7 @@ const likeQuotes = async (req, res) => {
       }
     });
     if (existingLike) {
-      const newLikeStatus = !existingLike.like;
-      await existingLike.update({ like: newLikeStatus });
-
-      const likeMessage = newLikeStatus ? "liked" : "unliked";
-
+      await existingLike.destroy();
       const likeCount = await Like.count({
         where: {
           quote_id: quote_id,
@@ -141,7 +132,7 @@ const likeQuotes = async (req, res) => {
         { where: { id: quote_id } }
       );
 
-      return res.status(200).json({ success: true, message: `You have ${likeMessage} the post successfully` });
+      return res.status(200).json({ success: true, message: "You have removed like from this post " });
     }
     await Like.create({
       user_id: user.id,
@@ -179,10 +170,7 @@ const dislikeQuotes = async (req, res) => {
       }
     });
     if (existingDislike) {
-      const newDislikeStatus = !existingDislike.dislike;
-      await existingDislike.update({ dislike: newDislikeStatus });
-
-      const dislikeMessage = newDislikeStatus ? "disliked" : "removeddislike";
+      await existingDislike.destroy();
       const dislikeCount = await Like.count({
         where: {
           quote_id: quote_id,
@@ -194,8 +182,7 @@ const dislikeQuotes = async (req, res) => {
         { dislike_count: dislikeCount },
         { where: { id: quote_id } }
       );
-
-      return res.status(200).json({ success: true, message: `You have ${dislikeMessage} the post successfully` });
+      return res.status(200).json({ success: true, message: "You have removed disliked from this post " });
     }
     await Like.create({
       user_id: user.id,

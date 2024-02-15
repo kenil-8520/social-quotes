@@ -47,6 +47,8 @@ const User = sequelize.define("User", {
     freezeTableName: true
 }
 )
-
+User.associate = (models) => {
+    User.hasMany(sequelize.define('quote'))
+}
 module.exports = User
 
