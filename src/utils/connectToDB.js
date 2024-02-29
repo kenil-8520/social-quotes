@@ -24,6 +24,7 @@ sequelize.sync({ force:false })
 
 // sequelize.sync({alter:true, drop:false})
 
+
 module.exports = sequelize;
 
 
